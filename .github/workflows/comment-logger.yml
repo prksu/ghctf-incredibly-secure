@@ -1,0 +1,32 @@
+name: log and process issue comments
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  issue_comment:
+    name: log issue comment
+    runs-on: ubuntu-latest
+    steps:
+      - id: comment_log
+        name: log issue comment
+        uses: actions/github-script@v3
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        with:
+          github-token: "deadc0de"
+          script: |
+            console.log(process.env.COMMENT_BODY)
+            return process.env.COMMENT_ID
+          result-encoding: string
+      - id: comment_process
+        name: process comment
+        uses: actions/github-script@v3
+        timeout-minutes: 1
+        if: ${{ steps.comment_log.outputs.COMMENT_ID }}
+        with:
+          script: |
+            const id = ${{ steps.comment_log.outputs.COMMENT_ID }}
+            return ""
+          result-encoding: string
